@@ -32,7 +32,14 @@ const editorHTML = `
           padding: 5px;      
           word-wrap: break-word;
       }
-
+      blockquote {
+          white-space: pre-wrap;
+          border-left: 3px solid #ccc;
+          margin: 5px;
+          padding: 5px;      
+          word-wrap: break-word;
+      }
+        
         #editor {
            flex-grow: 1;
         }
@@ -102,6 +109,9 @@ const editorHTML = `
                         case 'pre':
                         tag = 'codeblock';
                         break;
+                        case 'blockquote':
+                        tag = 'blockquote';
+                        break;
                         case 'p':
                         tag = 'body';
                         break;
@@ -120,7 +130,13 @@ const editorHTML = `
             });
 
             document.addEventListener("keydown", function() {
-                if (event.key === 'Backspace' && document.queryCommandValue('formatBlock') === 'pre') {
+                if (event.key === 'Backspace' && (document.queryCommandValue('formatBlock') === 'blockquote' || document.queryCommandValue('formatBlock') === 'pre')) {
+                    document.execCommand('formatBlock', false, 'div');
+                }
+
+                if (event.key === 'Enter' && document.queryCommandValue('formatBlock') === 'blockquote') {
+                    event.preventDefault();
+                    document.execCommand('insertText', false, '\\n');
                     document.execCommand('formatBlock', false, 'div');
                 }
             });
@@ -167,6 +183,16 @@ const editorHTML = `
                               document.execCommand('formatBlock', false, 'pre');
                             }
                         break;
+                        case 'blockquote':
+                            document.queryCommandState('insertUnorderedList') && document.execCommand('insertUnorderedList');
+                            document.queryCommandState('insertorderedlist') && document.execCommand('insertorderedlist');
+                            
+                            if (document.queryCommandValue('formatBlock') === 'blockquote') {
+                                document.execCommand('formatBlock', false, 'div');
+                            } else {
+                              document.execCommand('formatBlock', false, 'div');
+                              document.execCommand('formatBlock', false, 'blockquote');
+                            }
                         break;
                         case 'heading':
                         document.queryCommandState('insertUnorderedList') && document.execCommand('insertUnorderedList');
