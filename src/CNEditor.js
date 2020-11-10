@@ -33,6 +33,12 @@ export default class CNEditor extends Component {
                 case 'LOG': {
                     console.log('LOG from editor script: ', ...message.data)
                 }
+                case 'getCurrentSelection':
+                    typeof this.props.onReceiveCurrentSelection === "function" && this.props.onReceiveCurrentSelection(message.data);
+                    break;
+                case 'getCaretPosition':
+                    typeof this.props.onReceiveCaretPosition === "function" && this.props.onReceiveCaretPosition(message.data);
+                    break;
                 case 'getHtml':
                     if(this._resolve) {
                         this._resolve( message.data);
@@ -266,6 +272,46 @@ export default class CNEditor extends Component {
         if (this.webViewRef) {            
             this.webViewRef.postMessage(jsonString);
         } 
+    }
+
+    getCaretPosition = () => {
+        const jsonString = JSON.stringify({ type: 'editor', command: 'getCaretPosition'  });
+
+        if (this.webViewRef) {
+            this.webViewRef.postMessage(jsonString);
+        }
+    }
+
+    setCaretPosition = (position) => {
+        const jsonString = JSON.stringify({ type: 'editor', command: 'setCaretPosition', position  });
+
+        if (this.webViewRef) {
+            this.webViewRef.postMessage(jsonString);
+        }
+    }
+
+    getCurrentSelection = () => {
+        const jsonString = JSON.stringify({ type: 'editor', command: 'getCurrentSelection'  });
+
+        if (this.webViewRef) {
+            this.webViewRef.postMessage(jsonString);
+        }
+    }
+
+    saveSelection = () => {
+        const jsonString = JSON.stringify({ type: 'editor', command: 'saveSelection'  });
+
+        if (this.webViewRef) {
+            this.webViewRef.postMessage(jsonString);
+        }
+    }
+    
+    restoreSelection = (node, range) => {
+        const jsonString = JSON.stringify({ type: 'editor', command: 'restoreSelection', node, range  });
+    
+        if (this.webViewRef) {
+            this.webViewRef.postMessage(jsonString);
+        }
     }
 
     getHtml = () => {

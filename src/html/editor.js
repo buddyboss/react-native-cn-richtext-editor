@@ -68,6 +68,8 @@ const editorHTML = `
             var editor = document.getElementById('editor');
             editor.contentEditable = true;
 
+            var selectedRange;
+
             console.log = function (){
               if(__DEV__) {
                 sendMessage(
@@ -253,9 +255,94 @@ const editorHTML = `
                 getSelectedTag();
             }
 
-            function placeCursorAtEnd(el) {
+            function isChildOf(node, parentId) {
+                while (node !== null) {
+                    if (node.id === parentId) {
+                        return true;
+                    }
+                    node = node.parentNode;
+                }
+                return false;
+            };
+
+            function createRange(node, chars) {
+                var range = document.createRange()
+                range.selectNode(node);
+                range.setStart(node, 0);
+
+                if (chars.count === 0) {
+                    range.setEnd(node, chars.count);
+                } else if (node && chars.count >0) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        if (node.textContent.length < chars.count) {
+                            chars.count -= node.textContent.length;
+                        } else {
+                            range.setEnd(node, chars.count);
+                            chars.count = 0;
+                        }
+                    } else {
+                      for (var lp = 0; lp < node.childNodes.length; lp++) {
+                            range = createRange(node.childNodes[lp], chars, range);
+            
+                            if (chars.count === 0) {
+                                break;
+                            }
+                        }
+                    }
+                } 
+                return range;
+            };
+
+            function getCursorPosition(parentId) {
+                if (typeof window.getSelection === 'function') {
+                    var selection = window.getSelection(),
+                      charCount = -1,
+                      node;
+                
+                    if (selection.focusNode) {
+                        if (isChildOf(selection.focusNode, parentId)) {
+                            node = selection.focusNode;
+                            charCount = selection.focusOffset;
+                    
+                            while (node) {
+                                if (node.id === parentId) {
+                                    break;
+                                }
+                      
+                                if (node.previousSibling) {
+                                    node = node.previousSibling;
+                                    charCount += node.textContent.length;
+                                } else {
+                                    node = node.parentNode;
+                                    if (node === null) {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return charCount;
+                }
+                return 0;
+            }            
+
+            function setCursorPosition(el, chars) {
+                if (typeof window.getSelection === 'function') {
+                    if (chars >= 0) {
+                        var selection = window.getSelection();
+                        var range = createRange(el, { count: chars });
+                        if (range) {
+                            range.collapse(false);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    }
+                }
+            };
+
+            function placeCaretAtEnd(el) {
               el.focus();
-              if (typeof window.getSelection != "undefined"
+              if (typeof window.getSelection === 'function'
                       && typeof document.createRange != "undefined") {
                   var range = document.createRange();
                   range.selectNodeContents(el);
@@ -271,6 +358,58 @@ const editorHTML = `
               }
             }
 
+            function getCurrentSelection(el) {
+                var start = 0;
+                var end = 0;
+                var doc = el.ownerDocument || el.document;
+                var sel;
+                var text;
+                var link;
+
+                if (typeof window.getSelection === 'function') {
+                    sel = window.getSelection();
+                    var focusNodeParentNode = sel.focusNode.parentNode;
+
+                    text = sel.toString();
+                    link = focusNodeParentNode.nodeName === 'A' ? focusNodeParentNode.toString() : '';
+
+                    if (sel.rangeCount > 0) {
+                        var range = sel.getRangeAt(0);
+                        var preCaretRange = range.cloneRange();
+                        preCaretRange.selectNodeContents(el);
+                        preCaretRange.setEnd(range.startContainer, range.startOffset);
+                        start = preCaretRange.toString().length;
+                        preCaretRange.setEnd(range.endContainer, range.endOffset);
+                        end = preCaretRange.toString().length;
+                    }
+                } else if ( (sel = doc.selection) && sel.type != 'Control') {
+                    var textRange = sel.createRange();
+                    var preCaretTextRange = doc.body.createTextRange();
+                    preCaretTextRange.moveToElementText(el);
+                    preCaretTextRange.setEndPoint('EndToStart', textRange);
+                    start = preCaretTextRange.text.length;
+                    preCaretTextRange.setEndPoint('EndToEnd', textRange);
+                    end = preCaretTextRange.text.length;
+                }
+
+                saveSelection();
+                return { start: start, end: end, text: text, link: link };
+            }
+
+            function saveSelection() {
+                if (typeof window.getSelection === 'function') {
+                    selectedRange = window.getSelection().getRangeAt(0);
+                }
+            }
+
+            function restoreSelection() {
+                if (typeof window.getSelection === 'function') {
+                    var sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(selectedRange);
+                }
+            }
+
             var getRequest = function(event) {
               var msgData = JSON.parse(event.data);
               if(msgData.type === 'toolbar') {
@@ -279,10 +418,31 @@ const editorHTML = `
               else if(msgData.type === 'editor') {
                 switch (msgData.command) {
                 case 'focus':
-                  placeCursorAtEnd(editor);
+                  placeCaretAtEnd(editor);
                   break;
                 case 'blur':
                   editor.blur();
+                  break;
+                case 'getCaretPosition':
+                  sendMessage(JSON.stringify({
+                    type: 'getCaretPosition',
+                    data: getCursorPosition('editor')
+                  }));
+                  break;
+                case 'setCaretPosition':
+                  setCursorPosition(editor, msgData.position || 0);
+                  break;
+                case 'getCurrentSelection':
+                  sendMessage(JSON.stringify({
+                    type: 'getCurrentSelection',
+                    data: getCurrentSelection(editor)
+                  }));
+                  break;
+                case 'saveSelection':
+                  saveSelection();
+                  break;
+                case 'restoreSelection':
+                  restoreSelection();
                   break;
                 case 'getHtml':
                   sendMessage(
