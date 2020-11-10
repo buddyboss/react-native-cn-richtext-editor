@@ -23,13 +23,16 @@ const editorHTML = `
             background: hsl(220, 80%, 90%);         
         }
         pre {
-            white-space: pre-wrap;
-            background: #eee;
-            margin: 15px;
-            padding: 5px;      
-            word-wrap: break-word;
-        }
-        
+          white-space: pre-wrap;
+          background: #eee;
+          border: 1px solid #ddd;
+          border-width: 1px;
+          border-radius: 4px;
+          margin: 5px;
+          padding: 5px;      
+          word-wrap: break-word;
+      }
+
         #editor {
            flex-grow: 1;
         }
@@ -116,6 +119,12 @@ const editorHTML = `
                 getSelectedTag();
             });
 
+            document.addEventListener("keydown", function() {
+                if (event.key === 'Backspace' && document.queryCommandValue('formatBlock') === 'pre') {
+                    document.execCommand('formatBlock', false, 'div');
+                }
+            });
+
             document.getElementById("editor").addEventListener("input", function() {
                 let contentChanged = JSON.stringify({
                     type: 'onChange',
@@ -152,8 +161,12 @@ const editorHTML = `
                         case 'codeblock':
                             document.queryCommandState('insertUnorderedList') && document.execCommand('insertUnorderedList');
                             document.queryCommandState('insertorderedlist') && document.execCommand('insertorderedlist');
-                        // document.execCommand("insertHTML", false, "<pre><code>"+ document.getSelection()+"</code></pre>");
-                        document.execCommand('formatBlock', false, 'pre');
+                            if (document.queryCommandValue('formatBlock') === 'pre') {
+                                document.execCommand('formatBlock', false, 'div');
+                            } else {
+                              document.execCommand('formatBlock', false, 'pre');
+                            }
+                        break;
                         break;
                         case 'heading':
                         document.queryCommandState('insertUnorderedList') && document.execCommand('insertUnorderedList');
