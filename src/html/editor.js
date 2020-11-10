@@ -61,7 +61,7 @@ const editorHTML = `
     <title>CN-Editor</title>
 </head>
 <body>
-  <div id="editor" contenteditable placeholder="Div placeholder..." oninput="if(this.innerHTML.trim()==='<br>')this.innerHTML=''" ></div>
+  <div id="editor" contenteditable placeholder="" oninput="if(this.innerHTML.trim()==='<br>')this.innerHTML=''" ></div>
     <script>
         var __DEV__ = !!${window.__DEV__};
         (function(doc) {
