@@ -111,6 +111,24 @@ export default class CNEditor extends Component {
 
     }
 
+    insertLink(title = '', url = '') {
+        if (url) {
+            const jsonString = JSON.stringify({
+                type: 'toolbar',
+                command: 'link',
+                value: {
+                    title,
+                    url,
+                    id: shortid.generate(),
+                }
+            });
+
+            if (this.webViewRef) {   
+                this.webViewRef.postMessage(jsonString);
+            }
+        }
+    }
+
     insertImage(url, id = null, height = null, width = null, alt = '', align = 'none') {
 
         let myHeight, myWidth;

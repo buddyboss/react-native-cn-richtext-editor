@@ -225,6 +225,15 @@ const editorHTML = `
                         case 'highlight':
                         document.execCommand('backColor', false, value);
                         break;
+                        case 'link':
+                          var data = value || {};
+                          var title = data.title;
+                          var url = data.url || window.prompt('Enter the link URL');
+                          if (url){
+                            const val = "<a href='" + url + "'>" + (title || url) + "</a>";
+                            doc.execCommand('insertHTML', false, val);
+                          }
+                          break;
                         case 'image':
                         var img = "<img src='" + value.url + "' id='" + value.id + "' width='" + Math.round(value.width) + "' height='" + Math.round(value.height) + "' alt='" + value.alt + "' />";
                          if(document.all) {
