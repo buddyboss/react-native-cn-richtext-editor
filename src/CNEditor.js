@@ -30,6 +30,9 @@ export default class CNEditor extends Component {
             const { styleList } = this.props;
             const message = JSON.parse(event.nativeEvent.data);                        
             switch (message.type) {
+                case 'LOG': {
+                    console.log('LOG from editor script: ', ...message.data)
+                }
                 case 'getHtml':
                     if(this._resolve) {
                         this._resolve( message.data);

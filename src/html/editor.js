@@ -63,9 +63,21 @@ const editorHTML = `
 <body>
   <div id="editor" contenteditable placeholder="Div placeholder..." oninput="if(this.innerHTML.trim()==='<br>')this.innerHTML=''" ></div>
     <script>
+        var __DEV__ = !!${window.__DEV__};
         (function(doc) {
             var editor = document.getElementById('editor');
             editor.contentEditable = true;
+
+            console.log = function (){
+              if(__DEV__) {
+                sendMessage(
+                  JSON.stringify({
+                    type: 'LOG',
+                    data: Array.prototype.slice.call(arguments)
+                  })
+                );
+              }
+            }
 
             var getSelectedStyles = function() {
                 let styles = [];
