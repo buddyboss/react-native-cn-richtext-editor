@@ -33,6 +33,13 @@ export default class CNEditor extends Component {
                 case 'LOG': {
                     console.log('LOG from editor script: ', ...message.data)
                 }
+                break;
+                case 'onFocus':
+                    typeof this.props.onFocus === "function" && this.props.onFocus();
+                    break;
+                case 'onBlur':
+                    typeof this.props.onBlur === "function" && this.props.onBlur();
+                    break;
                 case 'getCurrentSelection':
                     typeof this.props.onReceiveCurrentSelection === "function" && this.props.onReceiveCurrentSelection(message.data);
                     break;

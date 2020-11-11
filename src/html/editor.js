@@ -138,6 +138,20 @@ const editorHTML = `
                 sendMessage(stylesJson);
             }
 
+            editor.addEventListener('focus', function() {
+                var focused = JSON.stringify({
+                  type: 'onFocus',
+                });
+                sendMessage(focused);
+            });
+
+            editor.addEventListener('blur', function() {
+                var blured = JSON.stringify({
+                  type: 'onBlur'
+                });
+                sendMessage(blured);
+            });
+
             document.addEventListener('selectionchange', function() {
                 getSelectedStyles();
                 getSelectedTag();
