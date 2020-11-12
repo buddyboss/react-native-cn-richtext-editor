@@ -9,6 +9,7 @@ const editorHTML = `
         html, body {
           margin: 0;
           padding: 0;
+          border: 0.5px solid transparent;
         }
         body {
           overflow-y: hidden;
@@ -69,8 +70,7 @@ const editorHTML = `
     
             var updateHeight = function() {
                 var height = document.body.scrollHeight;
-                if (docHeight !== height){
-                    console.log({docHeight, height})
+                if (docHeight !== height && height > 0){
                     docHeight = height;
                     sendMessage(
                         JSON.stringify({
@@ -82,7 +82,6 @@ const editorHTML = `
             }
 
             var initialize = function() {
-                setInterval(updateHeight, 150);
                 updateHeight();
             }
 
@@ -166,6 +165,10 @@ const editorHTML = `
                   type: 'onBlur'
                 });
                 sendMessage(blured);
+            });
+
+            document.addEventListener('input', function() {
+                updateHeight();
             });
 
             document.addEventListener('selectionchange', function() {
