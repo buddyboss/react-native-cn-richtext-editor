@@ -75,7 +75,7 @@ const editorHTML = `
                     sendMessage(
                         JSON.stringify({
                             type: 'updateHeight',
-                            data: height
+                            data: height + 20
                         })
                     );
                 }
