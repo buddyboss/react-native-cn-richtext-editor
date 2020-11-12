@@ -218,6 +218,10 @@ export default class CNEditor extends Component {
       if(this.props.placeholder)
       this.setPlaceholder(this.props.placeholder);
 
+      if (this.props.autoFocus) {
+          this.focus();
+      }
+
       this.init();
     }
 
