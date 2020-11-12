@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import {WebView} from 'react-native-webview';
 import htmlEditor from './html/editor';
-import { StyleSheet, View, Image} from 'react-native';
+import { StyleSheet, View, Image, Dimensions} from 'react-native';
 const shortid = require('shortid');
+
+const DEVICE_HEIGHT = Dimensions.get("window").height;
 
 export default class CNEditor extends Component {
 
@@ -11,6 +13,7 @@ export default class CNEditor extends Component {
         this.isInit = false;
         this.state = {
             layoutWidth: 400, 
+            height: 0
           };
         this.webViewRef = null;
         this._resolve = null;
@@ -24,16 +27,26 @@ export default class CNEditor extends Component {
          ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
          ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
        }
+
+    setHeight = (height) => {
+        const maxHeight = this.props.maxHeight || DEVICE_HEIGHT;
+        const updatedHeight = Math.min(height, maxHeight);
+        if (updatedHeight !== this.state.height && updatedHeight !== 0) {
+            this.setState({height: updatedHeight});
+        }
+    }
     
     onMessage = (event) => {
         try {
             const { styleList } = this.props;
             const message = JSON.parse(event.nativeEvent.data);                        
             switch (message.type) {
-                case 'LOG': {
-                    console.log('LOG from editor script: ', ...message.data)
-                }
-                break;
+                case 'LOG':
+                    console.log('LOG from editor script: ', ...message.data);
+                    break;
+                case 'updateHeight':
+                    this.setHeight(message.data);
+                    break;
                 case 'onFocus':
                     typeof this.props.onFocus === "function" && this.props.onFocus();
                     break;
@@ -204,6 +217,16 @@ export default class CNEditor extends Component {
 
       if(this.props.placeholder)
       this.setPlaceholder(this.props.placeholder);
+
+      this.init();
+    }
+
+    init = () => {
+        const jsonString = JSON.stringify({ type: 'editor', command: 'init' }); 
+
+        if (this.webViewRef) {            
+            this.webViewRef.postMessage(jsonString);
+        } 
     }
 
     onLayout = (event) => {
@@ -338,24 +361,26 @@ export default class CNEditor extends Component {
     render() {
     const { keyboardDisplayRequiresUserAction = false, customStyles = ''} = this.props;
     const htmlEditorString = htmlEditor.replace('/* PUT YOUR STYLE HERE */', customStyles);
+    const {height} = this.state;
     return (
-        <View style={styles.container}
+        <View style={[{height}]}
         onLayout={this.onLayout}>
             <WebView 
             style={styles.webView}
             ref={webView=> this.webViewRef = webView}
             onLoad={this.onLoad}
             allowFileAccess={true}
-            domStorageEnabled={true}
             allowUniversalAccessFromFileURLs={true}
             allowFileAccessFromFileURLs={true}
             keyboardDisplayRequiresUserAction={keyboardDisplayRequiresUserAction}
             javaScriptEnabled={true}
-            source={{ html: htmlEditorString}} 
-            domStorageEnabled={true}
+            source={{ html: htmlEditorString}}
+            domStorageEnabled={false}
+            hideKeyboardAccessoryView={true}
+            dataDetectorTypes={'none'}
             mixedContentMode='always'
             onMessage={this.onMessage}
-			renderError={(error)=>console.log('error:',error)}
+            renderError={(error)=>console.log('error:',error)}
             />
         </View>
     );
@@ -363,9 +388,6 @@ export default class CNEditor extends Component {
 }
 
 let styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     webView: {
         flexGrow: 1
     }

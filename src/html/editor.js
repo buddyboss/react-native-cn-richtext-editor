@@ -6,17 +6,13 @@ const editorHTML = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <style>
-        html {
-            height: 100%;
-            width: 100%;
+        html, body {
+          margin: 0;
+          padding: 0;
         }
         body {
-            display: flex;
-            flex-grow: 1;
-            flex-direction: column;
-            height: 100%;
-            margin: 0;
-            padding: 2px;
+          overflow-y: hidden;
+          height: 100%;
         }
         code { 
             background-color: #eee;
@@ -69,6 +65,26 @@ const editorHTML = `
             editor.contentEditable = true;
 
             var selectedRange;
+            var docHeight = 0;
+    
+            var updateHeight = function() {
+                var height = document.body.scrollHeight;
+                if (docHeight !== height){
+                    console.log({docHeight, height})
+                    docHeight = height;
+                    sendMessage(
+                        JSON.stringify({
+                            type: 'updateHeight',
+                            data: height
+                        })
+                    );
+                }
+            }
+
+            var initialize = function() {
+                setInterval(updateHeight, 150);
+                updateHeight();
+            }
 
             console.log = function (){
               if(__DEV__) {
@@ -431,6 +447,9 @@ const editorHTML = `
               }
               else if(msgData.type === 'editor') {
                 switch (msgData.command) {
+                case 'init':
+                  initialize();
+                  break;
                 case 'focus':
                   placeCaretAtEnd(editor);
                   break;
