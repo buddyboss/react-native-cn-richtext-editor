@@ -3,9 +3,10 @@ const editorHTML = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="user-scalable=1.0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <style>
+        * {outline: 0px solid transparent;-webkit-tap-highlight-color: rgba(0,0,0,0);-webkit-touch-callout: none;}
         html, body {
           margin: 0;
           padding: 0;
@@ -47,7 +48,12 @@ const editorHTML = `
         
       [contenteditable][placeholder]:empty:before {
         content: attr(placeholder);
-        position: absolute;
+        opacity: .4;
+        background-color: transparent;
+      }
+        
+      [contenteditable][placeholder]:empty:focus:before {
+        content: attr(placeholder);
         opacity: .4;
         background-color: transparent;
       }
