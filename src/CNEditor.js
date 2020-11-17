@@ -363,14 +363,14 @@ export default class CNEditor extends Component {
     }
 
     render() {
-    const { keyboardDisplayRequiresUserAction = false, customStyles = ''} = this.props;
+    const { keyboardDisplayRequiresUserAction = false, customStyles = '', webViewStyles} = this.props;
     const htmlEditorString = htmlEditor.replace('/* PUT YOUR STYLE HERE */', customStyles);
     const {height} = this.state;
     return (
         <View style={[{height}]}
         onLayout={this.onLayout}>
             <WebView 
-            style={styles.webView}
+            style={[styles.webView, {height}, webViewStyles]}
             ref={webView=> this.webViewRef = webView}
             onLoad={this.onLoad}
             allowFileAccess={true}
