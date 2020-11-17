@@ -73,6 +73,16 @@ const editorHTML = `
 
             var selectedRange;
             var docHeight = 0;
+
+            var emptyDivs = ["<div></div>", "<div><br></div>", "<div><div><br></div></div>"];
+
+            var cleanEmptyTags = function() {
+                var innerHTML = editor.innerHTML;
+                console.log({innerHTML})
+                if (emptyDivs.indexOf(innerHTML) !== -1) {
+                    editor.innerHTML = '';
+                }
+            }
     
             var updateHeight = function() {
                 var height = document.body.scrollHeight;
@@ -232,6 +242,7 @@ const editorHTML = `
                             document.queryCommandState('insertorderedlist') && document.execCommand('insertorderedlist');
                             if (document.queryCommandValue('formatBlock') === 'pre') {
                                 document.execCommand('formatBlock', false, 'div');
+                                cleanEmptyTags();
                             } else {
                               document.execCommand('formatBlock', false, 'pre');
                             }
@@ -242,6 +253,7 @@ const editorHTML = `
                             
                             if (document.queryCommandValue('formatBlock') === 'blockquote') {
                                 document.execCommand('formatBlock', false, 'div');
+                                cleanEmptyTags();
                             } else {
                               document.execCommand('formatBlock', false, 'div');
                               document.execCommand('formatBlock', false, 'blockquote');
@@ -255,10 +267,16 @@ const editorHTML = `
                         case 'ol':
                         document.execCommand('formatBlock', false, 'div');
                         document.execCommand('insertorderedlist');
+                        if (!document.queryCommandState('insertorderedlist')) {
+                            cleanEmptyTags();
+                        }
                         break;
                         case 'ul':
                         document.execCommand('formatBlock', false, 'div');
                         document.execCommand('insertUnorderedList');
+                        if (!document.queryCommandState('insertUnorderedList')) {
+                            cleanEmptyTags();
+                        }
                         break;
                         case 'color':
                         document.execCommand('foreColor', false, value);
