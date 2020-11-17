@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useMemo } from 'react'
 import {
     View,
     TouchableWithoutFeedback,
@@ -21,6 +21,7 @@ export const CNToolbarIcon = (props) => {
         selectedTag,
         buttonTypes,
         selectedBackgroundColor,
+        TouchableComponent,
     } = props    
     let colorCondition = '';
     let backgroundColorCondition = '';
@@ -32,8 +33,11 @@ export const CNToolbarIcon = (props) => {
         backgroundColorCondition = selectedTag === toolTypeText ? selectedBackgroundColor : backgroundColor;    
         colorCondition = selectedTag === toolTypeText ? selectedColor : color
     }
+
+    const Parent = useMemo(() => typeof TouchableComponent?.propTypes?.onPress === "function" ? TouchableComponent : TouchableWithoutFeedback, [TouchableComponent]);
+
     return (
-        <TouchableWithoutFeedback
+        <Parent
             onPress={() => {
                 onStyleKeyPress(toolTypeText)
             }}
@@ -50,6 +54,6 @@ export const CNToolbarIcon = (props) => {
                    }, iconComponent.props.style || {}] })
                 }
             </View>
-        </TouchableWithoutFeedback>
+        </Parent>
     )
 }

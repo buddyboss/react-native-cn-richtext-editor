@@ -58,6 +58,7 @@ class CNToolbar extends Component {
             iconSet = [],
             iconContainerStyle,
             iconSetContainerStyle,
+            TouchableComponent
         } = this.props;
 
         return (
@@ -80,6 +81,7 @@ class CNToolbar extends Component {
                                 iconSetContainerStyle={[styles.iconSetContainer, iconSetContainerStyle]}
                                 iconStyles={[styles.iconContainer, iconContainerStyle]}
                                 onStyleKeyPress={this.onStyleKeyPress}
+                                TouchableComponent={TouchableComponent}
                             /> :
                             <CNSeperator
                                 key={index}

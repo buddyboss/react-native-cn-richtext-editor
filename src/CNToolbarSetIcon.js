@@ -20,7 +20,8 @@ export const CNToolbarSetIcon = (props) => {
         iconArray,
         iconSetContainerStyle,
         iconStyles,
-        onStyleKeyPress
+        onStyleKeyPress,
+        TouchableComponent
     } = props
     return (
         <View style={iconSetContainerStyle}>
@@ -45,6 +46,7 @@ export const CNToolbarSetIcon = (props) => {
                         selectedTag={selectedTag}
                         buttonTypes={buttonTypes}
                         selectedBackgroundColor={selectedBackgroundColor}
+                        TouchableComponent={TouchableComponent}
                     />
                 )
             })}
