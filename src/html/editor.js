@@ -513,6 +513,10 @@ const editorHTML = `
                   break;
                 case 'setHtml':
                   editor.innerHTML = msgData.value;
+                  updateHeight();
+                  if (!msgData.value) {
+                    window.scrollTo(0, 0);
+                  }
                   break;
                   case 'style':
                     editor.style.cssText = msgData.value;
