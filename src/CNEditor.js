@@ -19,6 +19,12 @@ export default class CNEditor extends Component {
         this._resolve = null;
     }
 
+    componentDidUpdate(prevProps) {
+        const { maxHeight } = this.props;
+        if (maxHeight !== prevProps.maxHeight) {
+            this.setHeight(maxHeight);
+        }
+    }
 
     rgb2hex(rgb){
         rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
