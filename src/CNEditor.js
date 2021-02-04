@@ -19,13 +19,6 @@ export default class CNEditor extends Component {
         this._resolve = null;
     }
 
-    componentDidUpdate(prevProps) {
-        const { maxHeight } = this.props;
-        if (maxHeight !== prevProps.maxHeight) {
-            this.setHeight(maxHeight);
-        }
-    }
-
     rgb2hex(rgb){
         rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
         return (rgb && rgb.length === 4) ? "#" +
@@ -369,11 +362,11 @@ export default class CNEditor extends Component {
     }
 
     render() {
-    const { keyboardDisplayRequiresUserAction = false, customStyles = '', webViewStyles} = this.props;
+    const { keyboardDisplayRequiresUserAction = false, customStyles = '', webViewStyles, minHeight, maxHeight} = this.props;
     const htmlEditorString = htmlEditor.replace('/* PUT YOUR STYLE HERE */', customStyles);
     const {height} = this.state;
     return (
-        <View style={[{height}]}
+        <View style={[{height, minHeight, maxHeight}]}
         onLayout={this.onLayout}>
             <WebView 
             style={[styles.webView, {height}, webViewStyles]}
