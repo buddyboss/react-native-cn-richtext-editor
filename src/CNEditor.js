@@ -13,7 +13,7 @@ export default class CNEditor extends Component {
         this.isInit = false;
         this.state = {
             layoutWidth: 400, 
-            height: 0
+            height: 1
           };
         this.webViewRef = null;
         this._resolve = null;
