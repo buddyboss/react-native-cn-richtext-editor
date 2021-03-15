@@ -392,6 +392,7 @@ export default class CNEditor extends Component {
 
 let styles = StyleSheet.create({
     webView: {
-        flexGrow: 1
+        flexGrow: 1,
+        opacity: 0.99
     }
     });
